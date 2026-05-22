@@ -7,7 +7,9 @@
  */
 package io.camunda.zeebe.engine;
 
+import io.camunda.zeebe.protocol.record.value.BpmnElementType;
 import java.time.Duration;
+import java.util.Map;
 
 public final class EngineConfiguration {
 
@@ -65,6 +67,14 @@ public final class EngineConfiguration {
   public static final Duration DEFAULT_EXPRESSION_EVALUATION_TIMEOUT = Duration.ofSeconds(5);
   public static final boolean DEFAULT_BUSINESS_ID_UNIQUENESS_ENABLED = false;
 
+  /**
+   * Maximum number of times a single BPMN element may be activated within one process instance
+   * before a loop-detected incident is raised. Defaults to 1000.
+   */
+  public static final int DEFAULT_MAX_ELEMENT_ACTIVATION_COUNT = 1000;
+
+  public static final int DEFAULT_ELEMENT_ACTIVATION_RETRY_COOLDOWN = 100;
+
   private int maxIdFieldLength = DEFAULT_MAX_ID_FIELD_LENGTH;
   private int maxNameFieldLength = DEFAULT_MAX_NAME_FIELD_LENGTH;
   private int maxWorkerTypeLength = DEFAULT_MAX_WORKER_TYPE_LENGTH;
@@ -120,6 +130,17 @@ public final class EngineConfiguration {
    * </ul>
    */
   private boolean businessIdUniquenessEnabled = DEFAULT_BUSINESS_ID_UNIQUENESS_ENABLED;
+
+  private int maxElementActivationCount = DEFAULT_MAX_ELEMENT_ACTIVATION_COUNT;
+  private int elementActivationRetryCooldown = DEFAULT_ELEMENT_ACTIVATION_RETRY_COOLDOWN;
+
+  /**
+   * Per-{@link BpmnElementType} overrides for the maximum element activation count used by loop
+   * detection. An element type present in this map uses the mapped value instead of {@link
+   * #maxElementActivationCount}. A value of {@code 0} disables loop detection for that element
+   * type.
+   */
+  private Map<BpmnElementType, Integer> maxElementActivationCountByType = Map.of();
 
   public int getMessagesTtlCheckerBatchLimit() {
     return messagesTtlCheckerBatchLimit;
@@ -495,6 +516,38 @@ public final class EngineConfiguration {
   public EngineConfiguration setBusinessIdUniquenessEnabled(
       final boolean businessIdUniquenessEnabled) {
     this.businessIdUniquenessEnabled = businessIdUniquenessEnabled;
+    return this;
+  }
+
+  public int getMaxElementActivationCount() {
+    return maxElementActivationCount;
+  }
+
+  public EngineConfiguration setMaxElementActivationCount(final int maxElementActivationCount) {
+    this.maxElementActivationCount = maxElementActivationCount;
+    return this;
+  }
+
+  public int getElementActivationRetryCooldown() {
+    return elementActivationRetryCooldown;
+  }
+
+  public EngineConfiguration setElementActivationRetryCooldown(
+      final int elementActivationRetryCooldown) {
+    this.elementActivationRetryCooldown = elementActivationRetryCooldown;
+    return this;
+  }
+
+  public Map<BpmnElementType, Integer> getMaxElementActivationCountByType() {
+    return maxElementActivationCountByType;
+  }
+
+  public EngineConfiguration setMaxElementActivationCountByType(
+      final Map<BpmnElementType, Integer> maxElementActivationCountByType) {
+    this.maxElementActivationCountByType =
+        maxElementActivationCountByType == null
+            ? Map.of()
+            : Map.copyOf(maxElementActivationCountByType);
     return this;
   }
 }

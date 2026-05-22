@@ -1,0 +1,60 @@
+# Build output directories
+**/target/
+target/
+# Node.js dependencies
+**/node_modules/
+node_modules/
+# Gradle build directories
+**/.gradle/
+.gradle/
+**/build/
+# IDE files
+**/.idea/
+.idea/
+**/.vscode/
+.vscode/
+# Cache directories
+**/.cache/
+.cache/
+**/.yarn/
+.yarn/
+# Lock files (large, low value for Copilot)
+**/yarn.lock
+**/package-lock.json
+**/pnpm-lock.yaml
+# Generated / binary / snapshot files
+**/*.jar
+**/*.war
+**/*.ear
+**/*.class
+**/*.so
+**/*.dll
+**/*.exe
+**/*.zip
+**/*.tar.gz
+**/*.tgz
+# Test snapshots
+**/__snapshots__/
+**/*.snap
+# Coverage reports
+**/coverage/
+**/.nyc_output/
+# Logs
+**/*.log
+**/log/
+# c8run downloaded artifacts
+c8run/camunda-zeebe*/
+c8run/elasticsearch*/
+c8run/log/
+# Load test results / benchmark data
+load-tests/
+microbenchmarks/
+# Large generated protobuf / schema files
+**/generated-sources/
+**/generated-test-sources/
+# Frontend build outputs
+**/dist/
+operate/client/build/
+tasklist/client/build/
+identity/client/build/
+optimize/client/build/

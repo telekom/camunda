@@ -46,3 +46,9 @@ zeebe:
           timeout: 2s
         processInstanceCreation:
           businessIdUniquenessEnabled: true
+        loopDetection:
+          maxElementActivationCount: 500
+          elementActivationRetryCooldown: 50
+          maxElementActivationCountByType:
+            SERVICE_TASK: 300
+            USER_TASK: 0

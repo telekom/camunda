@@ -217,6 +217,7 @@ public class BrokerBasedPropertiesOverride {
     populateFromBatchOperations(override);
     populateFromExpression(override);
     populateFromProcessInstanceCreation(override);
+    populateFromLoopDetection(override);
   }
 
   private void populateFromDistribution(final BrokerBasedProperties override) {
@@ -241,6 +242,17 @@ public class BrokerBasedPropertiesOverride {
     batchOperationsCfg.setQueryRetryMaxDelay(engineBatchOperation.getQueryRetryMaxDelay());
     batchOperationsCfg.setQueryRetryBackoffFactor(
         engineBatchOperation.getQueryRetryBackoffFactor());
+  }
+
+  private void populateFromLoopDetection(final BrokerBasedProperties override) {
+    final var loopDetection =
+        unifiedConfiguration.getCamunda().getProcessing().getEngine().getLoopDetection();
+    final var loopDetectionCfg = override.getExperimental().getEngine().getLoopDetection();
+    loopDetectionCfg.setMaxElementActivationCount(loopDetection.getMaxElementActivationCount());
+    loopDetectionCfg.setElementActivationRetryCooldown(
+        loopDetection.getElementActivationRetryCooldown());
+    loopDetectionCfg.setMaxElementActivationCountByType(
+        loopDetection.getMaxElementActivationCountByType());
   }
 
   private void populateFromExpression(final BrokerBasedProperties override) {

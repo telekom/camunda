@@ -66,6 +66,7 @@ public final class BpmnBehaviorsImpl implements BpmnBehaviors {
   private final BpmnConditionalBehavior conditionalBehavior;
   private final ExpressionBehavior expressionBehavior;
   private final ExpressionLanguage expressionLanguage;
+  private final BpmnLoopDetectionBehavior loopDetectionBehavior;
 
   public BpmnBehaviorsImpl(
       final MutableProcessingState processingState,
@@ -281,6 +282,13 @@ public final class BpmnBehaviorsImpl implements BpmnBehaviors {
             stateBehavior,
             variableBehavior,
             processingState);
+
+    loopDetectionBehavior =
+        new BpmnLoopDetectionBehavior(
+            processingState.getElementInstanceState(),
+            config.getMaxElementActivationCount(),
+            config.getMaxElementActivationCountByType(),
+            config.getElementActivationRetryCooldown());
   }
 
   @Override
@@ -396,6 +404,11 @@ public final class BpmnBehaviorsImpl implements BpmnBehaviors {
   @Override
   public BpmnAdHocSubProcessBehavior adHocSubProcessBehavior() {
     return adHocSubProcessBehavior;
+  }
+
+  @Override
+  public BpmnLoopDetectionBehavior loopDetectionBehavior() {
+    return loopDetectionBehavior;
   }
 
   public ExpressionBehavior expressionBehavior() {

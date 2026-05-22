@@ -25,6 +25,7 @@ public final class EngineCfg implements ConfigurationEntry {
   private GlobalListenersCfg globalListeners = new GlobalListenersCfg();
   private ExpressionCfg expression = new ExpressionCfg();
   private ProcessInstanceCreationCfg processInstanceCreation = new ProcessInstanceCreationCfg();
+  private LoopDetectionCfg loopDetection = new LoopDetectionCfg();
 
   @Override
   public void init(final BrokerCfg globalConfig, final String brokerBase) {
@@ -39,6 +40,7 @@ public final class EngineCfg implements ConfigurationEntry {
     globalListeners.init(globalConfig, brokerBase);
     expression.init(globalConfig, brokerBase);
     processInstanceCreation.init(globalConfig, brokerBase);
+    loopDetection.init(globalConfig, brokerBase);
   }
 
   public MessagesCfg getMessages() {
@@ -137,6 +139,14 @@ public final class EngineCfg implements ConfigurationEntry {
     this.processInstanceCreation = processInstanceCreation;
   }
 
+  public LoopDetectionCfg getLoopDetection() {
+    return loopDetection;
+  }
+
+  public void setLoopDetection(final LoopDetectionCfg loopDetection) {
+    this.loopDetection = loopDetection;
+  }
+
   @Override
   public String toString() {
     return "EngineCfg{"
@@ -164,6 +174,8 @@ public final class EngineCfg implements ConfigurationEntry {
         + expression
         + ", processInstanceCreation="
         + processInstanceCreation
+        + ", loopDetection="
+        + loopDetection
         + '}';
   }
 
@@ -206,6 +218,9 @@ public final class EngineCfg implements ConfigurationEntry {
         .setMaxProcessDepth(getMaxProcessDepth())
         .setGlobalListeners(globalListeners.createGlobalListenersConfiguration())
         .setExpressionEvaluationTimeout(expression.getTimeout())
-        .setBusinessIdUniquenessEnabled(processInstanceCreation.isBusinessIdUniquenessEnabled());
+        .setBusinessIdUniquenessEnabled(processInstanceCreation.isBusinessIdUniquenessEnabled())
+        .setMaxElementActivationCount(loopDetection.getMaxElementActivationCount())
+        .setElementActivationRetryCooldown(loopDetection.getElementActivationRetryCooldown())
+        .setMaxElementActivationCountByType(loopDetection.getMaxElementActivationCountByType());
   }
 }

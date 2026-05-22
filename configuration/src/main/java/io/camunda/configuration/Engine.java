@@ -18,6 +18,9 @@ public class Engine {
   @NestedConfigurationProperty
   private EngineBatchOperation batchOperations = new EngineBatchOperation();
 
+  /** Configuration properties for the engine's loop detection. */
+  @NestedConfigurationProperty private LoopDetection loopDetection = new LoopDetection();
+
   public Distribution getDistribution() {
     return distribution;
   }
@@ -32,5 +35,13 @@ public class Engine {
 
   public void setBatchOperations(final EngineBatchOperation batchOperations) {
     this.batchOperations = batchOperations;
+  }
+
+  public LoopDetection getLoopDetection() {
+    return loopDetection;
+  }
+
+  public void setLoopDetection(final LoopDetection loopDetection) {
+    this.loopDetection = loopDetection;
   }
 }

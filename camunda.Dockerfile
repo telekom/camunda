@@ -3,8 +3,12 @@
 # DOCKER_BUILDKIT=1
 # see https://docs.docker.com/build/buildkit/#getting-started
 
-ARG BASE_IMAGE="reg.mini.dev/1212/openjre-base:21-dev"
-ARG BASE_DIGEST="sha256:3984ad2d9c184f40e6e5dacb4e5aa6e6beca968984a87f1ec656d59f9b054762"
+#ARG BASE_IMAGE="reg.mini.dev/1212/openjre-base:21-dev"
+#ARG BASE_DIGEST="sha256:f21d8148ffd3749c189231e78789ee5ef511f9c8d2c7f497537494d707f95074"
+#ARG BASE_IMAGE="reg.mini.dev/1212/openjre-base:21-dev"
+#ARG BASE_DIGEST="sha256:f21d8148ffd3749c189231e78789ee5ef511f9c8d2c7f497537494d707f95074"
+ARG BASE_IMAGE="artifactory.devops.telekom.de/mcc-secured-containerimages-oci-local/community/jdk"
+ARG BASE_DIGEST="sha256:75e0df60927cb0372a6e0909b21362127dca0455718b29e92e4ea4a148529fb3"
 ARG JATTACH_VERSION="v2.2"
 ARG JATTACH_CHECKSUM_AMD64="acd9e17f15749306be843df392063893e97bfecc5260eef73ee98f06e5cfe02f"
 ARG JATTACH_CHECKSUM_ARM64="288ae5ed87ee7fe0e608c06db5a23a096a6217c9878ede53c4e33710bdcaab51"
@@ -31,13 +35,58 @@ FROM ${BASE_IMAGE_PUBLIC}@${BASE_DIGEST_PUBLIC} AS base-public
 # hadolint ignore=DL3006
 FROM base-${BASE} AS build
 
+USER root
+
+# Copy corporate CA cert into the trust store before running apt
+RUN --mount=type=secret,id=corporate_ca,target=/usr/local/share/ca-certificates/corporate-ca.crt \
+    apt-get update -o Acquire::https::Verify-Peer=false && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    update-ca-certificates
+
+RUN rm /etc/apt/sources.list.d/ubuntu.sources && \
+    printf '%s\n' \
+      'Types: deb' \
+      'URIs: https://artifactory.devops.telekom.de/artifactory/archive.ubuntu.com' \
+      'Suites: noble noble-updates noble-backports' \
+      'Components: main universe restricted multiverse' \
+      'Trusted: yes' \
+      'Signed-By: /dev/null' \
+      '' \
+      'Types: deb' \
+      'URIs: https://artifactory.devops.telekom.de/artifactory/security-ubuntu-remote' \
+      'Suites: noble-security' \
+      'Components: main universe restricted multiverse' \
+      'Trusted: yes' \
+      'Signed-By: /dev/null' \
+      > /etc/apt/sources.list.d/artifactory.sources
+RUN cat /etc/apt/sources.list.d/artifactory.sources
+
+RUN --mount=type=secret,id=netrc,target=/.netrc \
+    cp /.netrc /etc/apt/auth.conf && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    protobuf-compiler \
+    build-essential \
+    git \
+    python3 \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN protoc --version
+RUN node --version && npm --version
+
+
 # hadolint ignore=DL3002
 USER root
 WORKDIR /camunda
 ENV MAVEN_OPTS -XX:MaxRAMPercentage=80
 COPY --link . ./
 RUN --mount=type=cache,target=/root/.m2,rw \
-    ./mvnw -B -am -pl dist package -T1C -D skipChecks -D skipTests && \
+    --mount=type=secret,id=m2settings,target=/root/.m2/settings.xml,readonly \
+    --mount=type=secret,id=npmrc,target=/.npmrc,readonly \
+    cat /root/.m2/settings.xml && \
+    cat /.npmrc && \
+    ./mvnw -B -am -pl dist clean package -T1C -D skipChecks -D skipTests -Dmaven.artifact.threads=30 && \
     mv dist/target/camunda-zeebe .
 
 ### jattach download stage ###
@@ -135,6 +184,15 @@ VOLUME /driver-lib
 
 # Switch to root to allow setting up our own user
 USER root
+
+# Install user management utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    adduser \
+    perl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN deluser --remove-home cloud
+
 RUN addgroup --gid 1001 camunda && \
     adduser -S -G camunda -u 1001 -h ${CAMUNDA_HOME} camunda && \
     chmod g=u /etc/passwd && \

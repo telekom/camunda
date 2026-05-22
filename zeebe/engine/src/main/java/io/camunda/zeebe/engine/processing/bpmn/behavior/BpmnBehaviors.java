@@ -62,4 +62,6 @@ public interface BpmnBehaviors {
   JobUpdateBehaviour jobUpdateBehaviour();
 
   BpmnAdHocSubProcessBehavior adHocSubProcessBehavior();
+
+  BpmnLoopDetectionBehavior loopDetectionBehavior();
 }
