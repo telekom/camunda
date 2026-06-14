@@ -5,6 +5,10 @@
  * Licensed under the Camunda License 1.0. You may not use this file
  * except in compliance with the Camunda License 1.0.
  */
+/*
+ * SPDX-FileCopyrightText: 2026 Deutsche Telekom Technik GmbH
+ * SPDX-FileCopyrightText: 2026 Felix Schneider
+ */
 package io.camunda.zeebe.broker.system.configuration.engine;
 
 import static io.camunda.zeebe.engine.EngineConfiguration.DEFAULT_ELEMENT_ACTIVATION_RETRY_COOLDOWN;
